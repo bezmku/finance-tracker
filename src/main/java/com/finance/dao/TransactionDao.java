@@ -18,14 +18,13 @@ public class TransactionDao implements ITransactionDao {
 
     @Override
     public boolean addTransaction(Transaction transaction) {
-        String sql = "INSERT INTO transactions (type, category, description, amount, date) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO transactions (type, category, description, amount) VALUES (?, ?, ?, ?)";
         try (Connection conn = databaseConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, transaction.getType().name());
             ps.setString(2, transaction.getCategory().name());
             ps.setString(3, transaction.getDescription());
             ps.setDouble(4, transaction.getAmount());
-            ps.setDate(5, new java.sql.Date(transaction.getDate().getTime()));
 
             return ps.executeUpdate() > 0;
 
@@ -37,14 +36,13 @@ public class TransactionDao implements ITransactionDao {
 
     @Override
     public boolean updateTransaction(Transaction transaction) {
-        String sql = "UPDATE transactions SET type = ?, category = ?, description = ?, amount = ?, date = ? WHERE id = ?";
+        String sql = "UPDATE transactions SET type = ?, category = ?, description = ?, amount = ? WHERE id = ?";
         try (Connection conn = databaseConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, transaction.getType().name());
             ps.setString(2, transaction.getCategory().name());
             ps.setString(3, transaction.getDescription());
             ps.setDouble(4, transaction.getAmount());
-            ps.setDate(5, new java.sql.Date(transaction.getDate().getTime()));
             ps.setInt(6, transaction.getId());
 
             return ps.executeUpdate() > 0;
@@ -69,7 +67,7 @@ public class TransactionDao implements ITransactionDao {
 
     @Override
     public List<Transaction> getAllTransactions() {
-        String sql = "SELECT * FROM transactions";
+        String sql = "SELECT * FROM transactions ORDER BY id DESC";
         try (Connection conn = databaseConnection.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             List<Transaction> transactions = new java.util.ArrayList<>();

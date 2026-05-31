@@ -28,13 +28,11 @@ public class Transaction {
 
     // Constructor for updating a transaction
 
-    public Transaction(TransactionType type, TransactionCategory category, String description, double amount,
-            Date date) {
+    public Transaction(TransactionType type, TransactionCategory category, String description, double amount) {
         this.type = type;
         this.category = category;
         this.description = description;
         this.amount = amount;
-        this.date = date;
     }
 
     public int getId() {

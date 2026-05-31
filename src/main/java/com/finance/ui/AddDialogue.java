@@ -1,156 +1,159 @@
 package com.finance.ui;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.Date;
-import com.finance.model.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import com.finance.model.Transaction;
+import com.finance.model.TransactionCategory;
+import com.finance.model.TransactionType;
+import com.finance.service.TransactionService;
 import com.finance.theme.AppTheme;
+import com.finance.ui.customui.custombutton.RoundButton;
+import com.finance.ui.customui.customcombobox.CustomComboBoxUI;
+import com.finance.ui.customui.customcombobox.CustomComoboBoxRenderer;
 
 public class AddDialogue extends JDialog {
+
+    private TransactionService service;
+    private boolean success = false;
     private JComboBox<TransactionType> typeCombo;
-    private JComboBox<TransactionCategory> categoryCombo;
-    private JTextField descriptionField;
+    private JComboBox<TransactionCategory> catCombo;
     private JTextField amountField;
-    private JSpinner dateSpinner;
-    private Transaction result;
-    private boolean saved;
+    private JTextField descField;
 
-    public AddDialogue(JFrame parent) {
-        super(parent, "Add Transaction", true);
-        setSize(420, 360);
-        setLocationRelativeTo(parent);
-        setResizable(false);
-        initUI();
-    }
+    public AddDialogue(MainFrame mainFrame) {
+        super(mainFrame, "Add Transaction", true);
+        setLocationRelativeTo(null);
+        setSize(400, 350);
+        setLayout(new BorderLayout());
 
-    private void initUI() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(AppTheme.CARD_BG);
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 10, 5, 10);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        JPanel fields = new JPanel();
+        fields.setLayout(new BoxLayout(fields, BoxLayout.Y_AXIS));
 
-        gbc.gridx = 0; gbc.gridy = 0;
-        JLabel typeLabel = new JLabel("Type:");
-        typeLabel.setFont(AppTheme.BODY_FONT);
-        panel.add(typeLabel, gbc);
+        // Type label + combo
+        JPanel typeRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
-        gbc.gridx = 1;
         typeCombo = new JComboBox<>(TransactionType.values());
         typeCombo.setFont(AppTheme.BODY_FONT);
-        panel.add(typeCombo, gbc);
+        typeCombo.setUI(new CustomComboBoxUI());
+        typeCombo.setRenderer(new CustomComoboBoxRenderer());
 
-        gbc.gridx = 0; gbc.gridy = 1;
-        JLabel catLabel = new JLabel("Category:");
-        catLabel.setFont(AppTheme.BODY_FONT);
-        panel.add(catLabel, gbc);
+        typeRow.add(new JLabel("Type:"));
+        typeRow.add(Box.createHorizontalStrut(20));
+        typeRow.add(typeCombo);
+        fields.add(typeRow);
 
-        gbc.gridx = 1;
-        categoryCombo = new JComboBox<>(TransactionCategory.values());
-        categoryCombo.setFont(AppTheme.BODY_FONT);
-        panel.add(categoryCombo, gbc);
+        // Category
+        JPanel catRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
-        gbc.gridx = 0; gbc.gridy = 2;
-        JLabel descLabel = new JLabel("Description:");
-        descLabel.setFont(AppTheme.BODY_FONT);
-        panel.add(descLabel, gbc);
+        catCombo = new JComboBox<>(TransactionCategory.values());
+        catCombo.setFont(AppTheme.BODY_FONT);
+        catCombo.setUI(new CustomComboBoxUI());
+        catCombo.setRenderer(new CustomComoboBoxRenderer());
 
-        gbc.gridx = 1;
-        descriptionField = new JTextField(20);
-        descriptionField.setFont(AppTheme.BODY_FONT);
-        panel.add(descriptionField, gbc);
+        catRow.add(new JLabel("Category:"));
+        catRow.add(Box.createHorizontalStrut(20));
+        catRow.add(catCombo);
+        fields.add(catRow);
 
-        gbc.gridx = 0; gbc.gridy = 3;
-        JLabel amtLabel = new JLabel("Amount:");
-        amtLabel.setFont(AppTheme.BODY_FONT);
-        panel.add(amtLabel, gbc);
+        // Amount
+        JPanel amountRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
-        gbc.gridx = 1;
-        amountField = new JTextField(20);
+        amountField = new JTextField(15);
         amountField.setFont(AppTheme.BODY_FONT);
-        panel.add(amountField, gbc);
+        amountField.setText("0.00");
 
-        gbc.gridx = 0; gbc.gridy = 4;
-        JLabel dateLabel = new JLabel("Date:");
-        dateLabel.setFont(AppTheme.BODY_FONT);
-        panel.add(dateLabel, gbc);
+        amountRow.add(new JLabel("Amount:"));
+        amountRow.add(Box.createHorizontalStrut(20));
+        amountRow.add(amountField);
 
-        gbc.gridx = 1;
-        dateSpinner = new JSpinner(new SpinnerDateModel());
-        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(dateSpinner, "MMM dd, yyyy");
-        dateSpinner.setEditor(dateEditor);
-        dateSpinner.setValue(new Date());
-        dateSpinner.setFont(AppTheme.BODY_FONT);
-        panel.add(dateSpinner, gbc);
+        fields.add(amountRow);
 
-        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        btnPanel.setOpaque(false);
+        // Description
+        JPanel descRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
-        JButton saveBtn = new JButton("Save");
-        saveBtn.setFont(AppTheme.BUTTON_FONT);
-        saveBtn.setBackground(AppTheme.ACCENT_PRIMARY);
-        saveBtn.setForeground(AppTheme.TEXT_ON_ACCENT);
-        saveBtn.setFocusPainted(false);
-        saveBtn.setBorderPainted(false);
-        saveBtn.setOpaque(true);
-        saveBtn.addActionListener(e -> save());
+        descField = new JTextField(25);
+        descField.setPreferredSize(new Dimension(300, 50));
+        descField.setFont(AppTheme.BODY_FONT);
+        descField.setText("Description");
 
-        JButton cancelBtn = new JButton("Cancel");
-        cancelBtn.setFont(AppTheme.BUTTON_FONT);
-        cancelBtn.setBackground(AppTheme.EXPENSE_COLOR);
-        cancelBtn.setForeground(AppTheme.TEXT_ON_ACCENT);
-        cancelBtn.setFocusPainted(false);
-        cancelBtn.setBorderPainted(false);
-        cancelBtn.setOpaque(true);
-        cancelBtn.addActionListener(e -> dispose());
+        descRow.add(new JLabel("Description:"));
+        descRow.add(Box.createHorizontalStrut(20));
+        descRow.add(descField);
+        fields.add(descRow);
 
-        btnPanel.add(saveBtn);
-        btnPanel.add(cancelBtn);
-        panel.add(btnPanel, gbc);
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        RoundButton saveButtone = new RoundButton("Save", 10);
+        saveButtone.setFont(AppTheme.BUTTON_FONT);
+        saveButtone.setBorder(BorderFactory.createEmptyBorder(AppTheme.PADDING, AppTheme.PADDING, AppTheme.PADDING,
+                AppTheme.PADDING));
+        saveButtone.setBackground(AppTheme.INCOME_COLOR);
+        saveButtone.setForeground(AppTheme.TEXT_ON_ACCENT);
+        saveButtone.setFocusPainted(false);
+        saveButtone.addActionListener(e -> {
+            saveTransaction();
+        });
+        buttons.add(saveButtone);
+        buttons.add(Box.createHorizontalStrut(10));
 
-        add(panel);
+        RoundButton cancelButton = new RoundButton("Cancel", 10);
+        cancelButton.setFont(AppTheme.BUTTON_FONT);
+        cancelButton.setBorder(BorderFactory.createEmptyBorder(AppTheme.PADDING, AppTheme.PADDING, AppTheme.PADDING,
+                AppTheme.PADDING));
+        cancelButton.setBackground(AppTheme.EXPENSE_COLOR);
+        cancelButton.setForeground(AppTheme.TEXT_ON_ACCENT);
+        cancelButton.setFocusPainted(false);
+        cancelButton.addActionListener(e -> dispose());
+        buttons.add(cancelButton);
+        buttons.add(Box.createHorizontalStrut(10));
+        add(buttons, BorderLayout.SOUTH);
+
+        add(fields, BorderLayout.CENTER);
+
     }
 
-    private void save() {
-        String desc = descriptionField.getText().trim();
-        String amtText = amountField.getText().trim();
-
-        if (desc.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Description cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        if (amtText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Amount cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        double amount;
-        try {
-            amount = Double.parseDouble(amtText);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Amount must be a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        if (amount <= 0) {
-            JOptionPane.showMessageDialog(this, "Amount must be positive.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
+    private void saveTransaction() {
         TransactionType type = (TransactionType) typeCombo.getSelectedItem();
-        TransactionCategory category = (TransactionCategory) categoryCombo.getSelectedItem();
-        Date date = (Date) dateSpinner.getValue();
+        TransactionCategory category = (TransactionCategory) catCombo.getSelectedItem();
+        String description = descField.getText();
 
-        result = new Transaction(type, category, desc, amount, date);
-        saved = true;
-        dispose();
-    }
+        String StringAmount = amountField.getText();
+        double amount;
 
-    public Transaction getTransaction() {
-        return result;
-    }
+        try {
+            amount = Double.parseDouble(StringAmount);
+            if (amount <= 0) {
+                JOptionPane.showMessageDialog(this, "Invalid amount");
+                return;
+            }
 
-    public boolean isSaved() {
-        return saved;
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid amount");
+            return;
+        }
+
+        Transaction transaction = new Transaction(type, category, description, amount);
+        service = new TransactionService();
+
+        success = service.addTransaction(transaction);
+        if (success) {
+            JOptionPane.showMessageDialog(this, "Transaction added successfully");
+
+        } else {
+            JOptionPane.showMessageDialog(this, "Transaction not added");
+        }
+
     }
 }
