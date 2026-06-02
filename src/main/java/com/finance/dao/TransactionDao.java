@@ -43,7 +43,7 @@ public class TransactionDao implements ITransactionDao {
             ps.setString(2, transaction.getCategory().name());
             ps.setString(3, transaction.getDescription());
             ps.setDouble(4, transaction.getAmount());
-            ps.setInt(6, transaction.getId());
+            ps.setInt(5, transaction.getId());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

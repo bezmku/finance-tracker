@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 import com.finance.model.Transaction;
 import com.finance.model.TransactionType;
 import com.finance.theme.AppTheme;
-import com.finance.ui.customui.custombutton.RoundButton;
 
 public class TransactionCard extends JPanel {
     private Transaction transaction;
@@ -118,7 +117,7 @@ public class TransactionCard extends JPanel {
         JPanel btnPanel = new JPanel(new GridLayout(2, 1, 0, 4));
         btnPanel.setOpaque(false);
 
-        RoundButton updateBtn = new RoundButton("update", 10);
+        JButton updateBtn = new JButton("update");
         updateBtn.setFont(AppTheme.BUTTON_FONT);
         updateBtn.setBackground(AppTheme.ACCENT_PRIMARY);
         updateBtn.setForeground(AppTheme.TEXT_ON_ACCENT);

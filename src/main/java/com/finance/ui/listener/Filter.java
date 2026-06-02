@@ -14,11 +14,11 @@ import com.finance.theme.AppTheme;
 import com.finance.ui.MainFrame;
 import com.finance.ui.TransactionCard;
 
-public class UIListener {
+public class Filter {
     MainFrame mainFrame;
     private TransactionService transactionService;
 
-    public UIListener(MainFrame mainFrame) {
+    public Filter(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.transactionService = new TransactionService();
 

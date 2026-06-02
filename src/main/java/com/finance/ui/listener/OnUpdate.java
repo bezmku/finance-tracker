@@ -1,4 +1,4 @@
-package com.finance.ui;
+package com.finance.ui.listener;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -19,11 +19,12 @@ import com.finance.model.TransactionCategory;
 import com.finance.model.TransactionType;
 import com.finance.service.TransactionService;
 import com.finance.theme.AppTheme;
+import com.finance.ui.MainFrame;
 import com.finance.ui.customui.custombutton.RoundButton;
 import com.finance.ui.customui.customcombobox.CustomComboBoxUI;
 import com.finance.ui.customui.customcombobox.CustomComoboBoxRenderer;
 
-public class AddDialogue extends JDialog {
+public class OnUpdate implements Runnable {
 
     private TransactionService service;
     private boolean success = false;
@@ -31,12 +32,22 @@ public class AddDialogue extends JDialog {
     private JComboBox<TransactionCategory> catCombo;
     private JTextField amountField;
     private JTextField descField;
+    JDialog updateDialog;
+    private MainFrame mainFrame;
+    private Transaction transaction;
 
-    public AddDialogue(MainFrame mainFrame) {
-        super(mainFrame, "Add Transaction", true);
-        setLocationRelativeTo(null);
-        setSize(400, 350);
-        setLayout(new BorderLayout());
+    public OnUpdate(MainFrame mainFrame, Transaction transaction) {
+        this.mainFrame = mainFrame;
+        this.transaction = transaction;
+    }
+
+    @Override
+    public void run() {
+
+        JDialog updateDialog = new JDialog(mainFrame, "Add Transaction", true);
+        updateDialog.setLocationRelativeTo(null);
+        updateDialog.setSize(400, 350);
+        updateDialog.setLayout(new BorderLayout());
 
         JPanel fields = new JPanel();
         fields.setLayout(new BoxLayout(fields, BoxLayout.Y_AXIS));
@@ -48,6 +59,7 @@ public class AddDialogue extends JDialog {
         typeCombo.setFont(AppTheme.BODY_FONT);
         typeCombo.setUI(new CustomComboBoxUI());
         typeCombo.setRenderer(new CustomComoboBoxRenderer());
+        typeCombo.setSelectedItem(transaction.getType());
 
         typeRow.add(new JLabel("Type:"));
         typeRow.add(Box.createHorizontalStrut(20));
@@ -61,6 +73,7 @@ public class AddDialogue extends JDialog {
         catCombo.setFont(AppTheme.BODY_FONT);
         catCombo.setUI(new CustomComboBoxUI());
         catCombo.setRenderer(new CustomComoboBoxRenderer());
+        catCombo.setSelectedItem(transaction.getCategory());
 
         catRow.add(new JLabel("Category:"));
         catRow.add(Box.createHorizontalStrut(20));
@@ -72,7 +85,7 @@ public class AddDialogue extends JDialog {
 
         amountField = new JTextField(15);
         amountField.setFont(AppTheme.BODY_FONT);
-        amountField.setText("0.00");
+        amountField.setText(String.format("%.2f", transaction.getAmount()));
 
         amountRow.add(new JLabel("Amount:"));
         amountRow.add(Box.createHorizontalStrut(20));
@@ -86,7 +99,7 @@ public class AddDialogue extends JDialog {
         descField = new JTextField(25);
         descField.setPreferredSize(new Dimension(300, 50));
         descField.setFont(AppTheme.BODY_FONT);
-        descField.setText("Description");
+        descField.setText(transaction.getDescription());
 
         descRow.add(new JLabel("Description:"));
         descRow.add(Box.createHorizontalStrut(20));
@@ -95,17 +108,19 @@ public class AddDialogue extends JDialog {
 
         JPanel buttons = new JPanel();
         buttons.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        RoundButton saveButtone = new RoundButton("Save", 10);
-        saveButtone.setFont(AppTheme.BUTTON_FONT);
-        saveButtone.setBorder(BorderFactory.createEmptyBorder(AppTheme.PADDING, AppTheme.PADDING, AppTheme.PADDING,
+        RoundButton updateButton = new RoundButton("update", 10);
+        updateButton.setFont(AppTheme.BUTTON_FONT);
+        updateButton.setBorder(BorderFactory.createEmptyBorder(AppTheme.PADDING, AppTheme.PADDING, AppTheme.PADDING,
                 AppTheme.PADDING));
-        saveButtone.setBackground(AppTheme.INCOME_COLOR);
-        saveButtone.setForeground(AppTheme.TEXT_ON_ACCENT);
-        saveButtone.setFocusPainted(false);
-        saveButtone.addActionListener(e -> {
-            saveTransaction();
+        updateButton.setBackground(AppTheme.INCOME_COLOR);
+        updateButton.setForeground(AppTheme.TEXT_ON_ACCENT);
+        updateButton.setFocusPainted(false);
+        updateButton.addActionListener(e -> {
+            updateTransaction();
+            mainFrame.loadTransaction();
+            updateDialog.dispose();
         });
-        buttons.add(saveButtone);
+        buttons.add(updateButton);
         buttons.add(Box.createHorizontalStrut(10));
 
         RoundButton cancelButton = new RoundButton("Cancel", 10);
@@ -115,16 +130,17 @@ public class AddDialogue extends JDialog {
         cancelButton.setBackground(AppTheme.EXPENSE_COLOR);
         cancelButton.setForeground(AppTheme.TEXT_ON_ACCENT);
         cancelButton.setFocusPainted(false);
-        cancelButton.addActionListener(e -> dispose());
+        cancelButton.addActionListener(e -> updateDialog.dispose());
         buttons.add(cancelButton);
         buttons.add(Box.createHorizontalStrut(10));
-        add(buttons, BorderLayout.SOUTH);
+        updateDialog.add(buttons, BorderLayout.SOUTH);
 
-        add(fields, BorderLayout.CENTER);
+        updateDialog.add(fields, BorderLayout.CENTER);
+        updateDialog.setVisible(true);
 
     }
 
-    private void saveTransaction() {
+    private void updateTransaction() {
         TransactionType type = (TransactionType) typeCombo.getSelectedItem();
         TransactionCategory category = (TransactionCategory) catCombo.getSelectedItem();
         String description = descField.getText();
@@ -135,24 +151,25 @@ public class AddDialogue extends JDialog {
         try {
             amount = Double.parseDouble(StringAmount);
             if (amount <= 0) {
-                JOptionPane.showMessageDialog(this, "Invalid amount");
+                JOptionPane.showMessageDialog(updateDialog, "Invalid amount");
                 return;
             }
 
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid amount");
+            JOptionPane.showMessageDialog(updateDialog, "Invalid amount");
             return;
         }
 
-        Transaction transaction = new Transaction(type, category, description, amount);
+        Transaction updated = new Transaction(transaction.getId(), type, category, description, amount,
+                transaction.getDate());
         service = new TransactionService();
 
-        success = service.addTransaction(transaction);
+        success = service.updateTransaction(updated);
         if (success) {
-            JOptionPane.showMessageDialog(this, "Transaction added successfully");
+            JOptionPane.showMessageDialog(updateDialog, "Transaction udpated successfully");
 
         } else {
-            JOptionPane.showMessageDialog(this, "Transaction not added");
+            JOptionPane.showMessageDialog(updateDialog, "Transaction not udpated");
         }
 
     }

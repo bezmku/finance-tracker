@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.util.List;
 
@@ -26,7 +25,9 @@ import com.finance.theme.AppTheme;
 import com.finance.ui.customui.custombutton.RoundButton;
 import com.finance.ui.customui.customcombobox.CustomComboBoxUI;
 import com.finance.ui.customui.customcombobox.CustomComoboBoxRenderer;
-import com.finance.ui.listener.UIListener;
+import com.finance.ui.listener.Filter;
+import com.finance.ui.listener.OnDelete;
+import com.finance.ui.listener.OnUpdate;
 
 public class MainFrame extends JFrame {
 
@@ -57,7 +58,6 @@ public class MainFrame extends JFrame {
         return periodCombo;
     }
 
-
     // Constructor
     public MainFrame() {
         setTitle("Transaction Tracker");
@@ -65,10 +65,7 @@ public class MainFrame extends JFrame {
         setSize(900, 700);
         setLocationRelativeTo(null);
 
-
-
-
-        UIListener listener = new UIListener(this);
+        Filter listener = new Filter(this);
         // Main panel
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(AppTheme.BG_COLOR);
@@ -111,7 +108,6 @@ public class MainFrame extends JFrame {
         filterCombo.setRenderer(new CustomComoboBoxRenderer());
         filterCombo.addActionListener(e -> listener.filterTransaction());
 
-        
         filters.add(filterCombo);
 
         JLabel typeLabel = new JLabel("Type:");
@@ -289,7 +285,9 @@ public class MainFrame extends JFrame {
             cardPanel.add(label);
         } else {
             for (Transaction t : transactions) {
-                TransactionCard card = new TransactionCard(t, null, null);
+                OnUpdate onUpdate = new OnUpdate(this, t);
+                OnDelete onDelete = new OnDelete(this, t);
+                TransactionCard card = new TransactionCard(t, onUpdate, onDelete);
                 cardPanel.add(card);
             }
         }
