@@ -64,10 +64,8 @@ public class MainFrame extends JFrame {
 
         Filter listener = new Filter(this);
 
-
-        //SideBar
+        // SideBar
         sideBar = new SideBar();
-
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(AppTheme.BG_COLOR);
@@ -161,10 +159,10 @@ public class MainFrame extends JFrame {
 
         loadTransaction();
         JScrollPane scrollPane = new JScrollPane(cardPanel);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         scrollPane.setBackground(AppTheme.BG_COLOR);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.add(toolbar, BorderLayout.NORTH);
-
 
         add(mainPanel, BorderLayout.CENTER);
         add(sideBar, BorderLayout.EAST);

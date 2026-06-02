@@ -35,18 +35,26 @@ public class Filter {
 
         else if ("CATEGORY".equals(filter)) {
             TransactionCategory cat = (TransactionCategory) mainFrame.getCatCombo().getSelectedItem();
-            transactions = transactionService.getTransactionsByCategory(cat);
+            if (TransactionCategory.ALL.equals(cat)) {
+                transactions = transactionService.getAllTransactions();
+            } else
+                transactions = transactionService.getTransactionsByCategory(cat);
         }
 
         else if ("TYPE".equals(filter)) {
             TransactionType type = (TransactionType) mainFrame.getTypeCombo().getSelectedItem();
-            transactions = transactionService.getTransactionsByType(type);
+            if (TransactionType.ALL.equals(type)) {
+                transactions = transactionService.getAllTransactions();
+            } else
+                transactions = transactionService.getTransactionsByType(type);
         }
 
         else if ("DATE".equals(filter)) {
 
             String period = (String) mainFrame.getPeriodCombo().getSelectedItem();
-            if ("Today".equals(period)) {
+            if ("All".equals(period)) {
+                transactions = transactionService.getAllTransactions();
+            } else if ("Today".equals(period)) {
                 transactions = transactionService.getTransactionsByDate(new Date());
             } else if ("This Week".equals(period)) {
                 Calendar cal = Calendar.getInstance();
