@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import com.finance.database.DatabaseConnection;
@@ -163,5 +164,25 @@ public class TransactionDao implements ITransactionDao {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public HashMap<TransactionCategory, Double> getCategoryTotals() {
+        String sql = "SELECT category, SUM(amount) as total FROM transactions GROUP BY category ORDER BY total DESC";
+        HashMap<TransactionCategory, Double> totals = new HashMap<>();
+        try (Connection conn = databaseConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                totals.put(
+                        TransactionCategory.valueOf(rs.getString(
+                                "category")),
+                        rs.getDouble("total"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return totals;
+
     }
 }

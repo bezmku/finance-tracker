@@ -1,6 +1,7 @@
 package com.finance.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import com.finance.dao.ITransactionDao;
@@ -58,5 +59,9 @@ public class TransactionService {
 
     public boolean deleteTransaction(int id) {
         return id > 0 && dao.deleteTransaction(id);
+    }
+
+    public HashMap<TransactionCategory, Double> getCategoryTotals() {
+        return dao.getCategoryTotals();
     }
 }

@@ -127,6 +127,10 @@ public class AddDialogue extends JDialog {
     private void saveTransaction() {
         TransactionType type = (TransactionType) typeCombo.getSelectedItem();
         TransactionCategory category = (TransactionCategory) catCombo.getSelectedItem();
+        if (type == TransactionType.ALL || category == TransactionCategory.ALL) {
+            JOptionPane.showMessageDialog(this, "Invalid category or type");
+            return;
+        }
         String description = descField.getText();
 
         String StringAmount = amountField.getText();

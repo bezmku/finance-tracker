@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -14,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
 import com.finance.model.Transaction;
+import com.finance.model.TransactionCategory;
 import com.finance.model.TransactionType;
 import com.finance.service.TransactionService;
 import com.finance.theme.AppTheme;
@@ -23,13 +26,15 @@ public class SideBar extends JPanel {
     private JLabel expenseValue;
     private JLabel balanceValue;
     private JPanel summarySection;
+    private JPanel topCategoriesPanel;
 
     public SideBar() {
         // Sidebar
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setPreferredSize(new Dimension(230, 0));
+        setPreferredSize(new Dimension(300, 0));
         setBackground(new Color(255, 255, 255, 200));
         setBorder(BorderFactory.createEmptyBorder(20, 15, 15, 15));
+        setOpaque(false);
 
         // Header
         JLabel summaryHeader = new JLabel("SUMMARY");
@@ -96,35 +101,22 @@ public class SideBar extends JPanel {
         add(summarySection);
 
         // Top categories
-        JPanel topCategories = new JPanel();
+        topCategoriesPanel = new JPanel();
 
-        topCategories.setLayout(new BoxLayout(topCategories, BoxLayout.Y_AXIS));
-        topCategories.setOpaque(false);
-        topCategories.setBackground(AppTheme.BG_COLOR);
-        topCategories.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 15));
+        topCategoriesPanel.setLayout(new BoxLayout(topCategoriesPanel, BoxLayout.Y_AXIS));
+        topCategoriesPanel.setOpaque(false);
+        topCategoriesPanel.setBackground(AppTheme.BG_COLOR);
+        topCategoriesPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 15));
 
         JLabel topCategoriesLabel = new JLabel("TOP CATEGORIES");
         topCategoriesLabel.setFont(AppTheme.BODY_FONT);
         topCategoriesLabel.setForeground(AppTheme.TEXT_SECONDARY);
-        topCategories.add(topCategoriesLabel);
+        topCategoriesPanel.add(topCategoriesLabel);
 
-        topCategories.add(Box.createVerticalStrut(8));
+        topCategoriesPanel.add(Box.createVerticalStrut(8));
 
-        String[][] cats = { { "Salary", "$2,500.00" }, { "Food", "$800.00" }, { "Rent", "$600.00" } };
-        for (String[] cat : cats) {
-            JPanel catRow = new JPanel(new BorderLayout());
-            catRow.setOpaque(false);
-            JLabel name = new JLabel("  ·  " + cat[0]);
-            name.setFont(AppTheme.TITLE_FONT);
-            catRow.add(name, BorderLayout.WEST);
-            JLabel val = new JLabel(cat[1]);
-            val.setFont(AppTheme.TITLE_FONT);
-            val.setForeground(AppTheme.TEXT_SECONDARY);
-            catRow.add(val, BorderLayout.EAST);
-            topCategories.add(catRow);
-            topCategories.add(Box.createVerticalStrut(4));
-        }
-        add(topCategories);
+        buildCategoryRows();
+        add(topCategoriesPanel);
 
     }
 
@@ -152,8 +144,46 @@ public class SideBar extends JPanel {
         balanceValue.setText(String.format("$%.2f", balance));
         balanceValue.setForeground((balance > 0) ? AppTheme.INCOME_COLOR : AppTheme.EXPENSE_COLOR);
 
+        topCategoriesPanel.removeAll();
+        topCategoriesPanel.revalidate();
+        topCategoriesPanel.repaint();
+        topCategoriesPanel.add(new JLabel("TOP CATEGORIES"));
+        topCategoriesPanel.add(Box.createVerticalStrut(8));
+        buildCategoryRows();
+
         revalidate();
         repaint();
+
+    }
+
+    private List<Map.Entry<TransactionCategory, Double>> getTopCategories() {
+
+        TransactionService ts = new TransactionService();
+        var totals = ts.getCategoryTotals();
+        var list = new ArrayList<>(totals.entrySet());
+        list.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
+        return list;
+    }
+    private void buildCategoryRows() {
+
+
+        for( var cat : getTopCategories()){
+
+            if(cat.getValue() == 0 )return;
+            JPanel catRow = new JPanel(new BorderLayout());
+            catRow.setOpaque(false);
+            JLabel name = new JLabel("  ·  " + cat.getKey().name());
+            name.setFont(AppTheme.TITLE_FONT);
+            catRow.add(name, BorderLayout.WEST);
+            JLabel val = new JLabel(String.format("$%.2f",cat.getValue()));
+            val.setFont(AppTheme.TITLE_FONT);
+            val.setForeground(AppTheme.TEXT_SECONDARY);
+            catRow.add(val, BorderLayout.EAST);
+            topCategoriesPanel.add(catRow);
+            topCategoriesPanel.add(Box.createVerticalStrut(4));
+
+
+        }
 
     }
 
