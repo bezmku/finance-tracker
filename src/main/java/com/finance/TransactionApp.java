@@ -1,13 +1,9 @@
 package com.finance;
 
-import javax.swing.SwingUtilities;
-
-import com.finance.ui.MainFrame;
+import com.finance.ui.WelcomeWindow;
 
 public class TransactionApp {
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new MainFrame();
-        });
+        new WelcomeWindow();
     }
 }

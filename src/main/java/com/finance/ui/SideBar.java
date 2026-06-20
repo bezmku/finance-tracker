@@ -164,24 +164,24 @@ public class SideBar extends JPanel {
         list.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
         return list;
     }
+
     private void buildCategoryRows() {
 
+        for (var cat : getTopCategories()) {
 
-        for( var cat : getTopCategories()){
-
-            if(cat.getValue() == 0 )return;
+            if (cat.getValue() == 0)
+                continue;
             JPanel catRow = new JPanel(new BorderLayout());
             catRow.setOpaque(false);
             JLabel name = new JLabel("  ·  " + cat.getKey().name());
             name.setFont(AppTheme.TITLE_FONT);
             catRow.add(name, BorderLayout.WEST);
-            JLabel val = new JLabel(String.format("$%.2f",cat.getValue()));
+            JLabel val = new JLabel(String.format("$%.2f", cat.getValue()));
             val.setFont(AppTheme.TITLE_FONT);
             val.setForeground(AppTheme.TEXT_SECONDARY);
             catRow.add(val, BorderLayout.EAST);
             topCategoriesPanel.add(catRow);
             topCategoriesPanel.add(Box.createVerticalStrut(4));
-
 
         }
 

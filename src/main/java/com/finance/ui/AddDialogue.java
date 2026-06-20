@@ -22,6 +22,7 @@ import com.finance.theme.AppTheme;
 import com.finance.ui.customui.custombutton.RoundButton;
 import com.finance.ui.customui.customcombobox.CustomComboBoxUI;
 import com.finance.ui.customui.customcombobox.CustomComoboBoxRenderer;
+import com.finance.ui.listener.Filter;
 
 public class AddDialogue extends JDialog {
 
@@ -31,9 +32,11 @@ public class AddDialogue extends JDialog {
     private JComboBox<TransactionCategory> catCombo;
     private JTextField amountField;
     private JTextField descField;
+    private MainFrame mainFrame;
 
     public AddDialogue(MainFrame mainFrame) {
         super(mainFrame, "Add Transaction", true);
+        this.mainFrame = mainFrame;
         setLocationRelativeTo(null);
         setSize(400, 350);
         setLayout(new BorderLayout());
@@ -154,6 +157,9 @@ public class AddDialogue extends JDialog {
         success = service.addTransaction(transaction);
         if (success) {
             JOptionPane.showMessageDialog(this, "Transaction added successfully");
+            Filter filter = new Filter(mainFrame);
+            filter.filterTransaction();
+            dispose();
 
         } else {
             JOptionPane.showMessageDialog(this, "Transaction not added");

@@ -9,20 +9,19 @@ public class DatabaseConnection {
     private static final String USER = "finance_user";
     private static final String PASSWORD = "finance_password";
 
-    private static Connection conn = null;
-
     public Connection getConnection() throws SQLException {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            return DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (ClassNotFoundException e) {
             System.out.println("ClassNotFoundException: " + e.getMessage());
             e.printStackTrace();
+            return null;
         } catch (SQLException e) {
             System.out.println("SQLException: " + e.getMessage() + "\n");
             e.printStackTrace();
+            return null;
         }
-        return conn;
     }
 
 }

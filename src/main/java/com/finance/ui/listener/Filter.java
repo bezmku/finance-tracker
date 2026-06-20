@@ -29,7 +29,7 @@ public class Filter {
         List<Transaction> transactions = transactionService.getAllTransactions();
 
         String filter = (String) mainFrame.getFilterCombo().getSelectedItem();
-        if ("ALL".equals(filter)) {
+        if ("ALL".equalsIgnoreCase(filter)) {
             transactions = transactionService.getAllTransactions();
         }
 
@@ -52,7 +52,7 @@ public class Filter {
         else if ("DATE".equals(filter)) {
 
             String period = (String) mainFrame.getPeriodCombo().getSelectedItem();
-            if ("All".equals(period)) {
+            if ("ALL".equalsIgnoreCase(period)) {
                 transactions = transactionService.getAllTransactions();
             } else if ("Today".equals(period)) {
                 transactions = transactionService.getTransactionsByDate(new Date());
@@ -79,7 +79,10 @@ public class Filter {
             mainFrame.getCardPanel().add(message);
         } else {
             for (Transaction t : transactions) {
-                mainFrame.getCardPanel().add(new TransactionCard(t, null, null));
+
+                OnUpdate onUpdate = new OnUpdate(mainFrame, t);
+                OnDelete onDelete = new OnDelete(mainFrame, t);
+                mainFrame.getCardPanel().add(new TransactionCard(t, onUpdate, onDelete));
             }
 
         }

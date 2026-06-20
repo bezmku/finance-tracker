@@ -44,7 +44,7 @@ public class OnUpdate implements Runnable {
     @Override
     public void run() {
 
-        JDialog updateDialog = new JDialog(mainFrame, "Add Transaction", true);
+        JDialog updateDialog = new JDialog(mainFrame, "Update Transaction", true);
         updateDialog.setLocationRelativeTo(null);
         updateDialog.setSize(400, 350);
         updateDialog.setLayout(new BorderLayout());
@@ -166,10 +166,10 @@ public class OnUpdate implements Runnable {
 
         success = service.updateTransaction(updated);
         if (success) {
-            JOptionPane.showMessageDialog(updateDialog, "Transaction udpated successfully");
+            JOptionPane.showMessageDialog(updateDialog, "Transaction updated successfully");
 
         } else {
-            JOptionPane.showMessageDialog(updateDialog, "Transaction not udpated");
+            JOptionPane.showMessageDialog(updateDialog, "Transaction not updated");
         }
 
     }

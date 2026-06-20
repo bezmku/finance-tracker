@@ -102,7 +102,7 @@ public class MainFrame extends JFrame {
         filterBy.setFont(AppTheme.BODY_FONT);
         filters.add(filterBy);
 
-        filterCombo = new JComboBox<>(new String[] { "All", "CATEGORY", "TYPE", "DATE" });
+        filterCombo = new JComboBox<>(new String[] { "ALL", "CATEGORY", "TYPE", "DATE" });
         filterCombo.setFont(AppTheme.BODY_FONT);
         filterCombo.setUI(new CustomComboBoxUI());
         filterCombo.setRenderer(new CustomComoboBoxRenderer());
@@ -138,7 +138,7 @@ public class MainFrame extends JFrame {
         periodLabel.setFont(AppTheme.BODY_FONT);
         filters.add(periodLabel);
 
-        periodCombo = new JComboBox<>(new String[] { "All", "Today", "This Week", "This Month" });
+        periodCombo = new JComboBox<>(new String[] { "ALL", "Today", "This Week", "This Month" });
         periodCombo.setFont(AppTheme.BODY_FONT);
         periodCombo.setUI(new CustomComboBoxUI());
         periodCombo.setRenderer(new CustomComoboBoxRenderer());
